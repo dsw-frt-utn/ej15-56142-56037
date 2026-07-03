@@ -36,6 +36,7 @@ namespace Dsw2026Ej15.Api.Controllers
         {
             var doctors = await _persistence.GetAllDoctors();
             return Ok(doctors.Select(d => new DoctorModel.Response(
+                d.Id,
                 d.Name,
                 d.LicenseNumber,
                 d.Speciality?.Name ?? string.Empty
@@ -47,6 +48,7 @@ namespace Dsw2026Ej15.Api.Controllers
             var doctor = await GetDoctor(id);
 
             var response = new DoctorModel.Response(
+                doctor.Id,
                 doctor.Name,
                 doctor.LicenseNumber,
                 doctor.Speciality?.Name ?? string.Empty
