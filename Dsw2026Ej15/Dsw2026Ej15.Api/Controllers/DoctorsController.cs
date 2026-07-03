@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
 using Dsw2026Ej15.Domain.Exceptions;
+using System.Linq;
 
 namespace Dsw2026Ej15.Api.Controllers
 {
@@ -22,27 +23,28 @@ namespace Dsw2026Ej15.Api.Controllers
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
                 throw new ValidationException("Nombre y Matricula son requeridos");
 
-            var speciality = _persistence.GetSpecialityById(request.SpecialityId);
+            var speciality = await _persistence.GetSpecialityById(request.SpecialityId);
             if (speciality == null)
                 throw new ValidationException("Especialidad no existe");
             var doctor = new Doctor(request.Name, request.LicenseNumber, speciality);
-            _persistence.SaveDoctor(doctor);
+            await _persistence.SaveDoctor(doctor);
 
             return StatusCode(201);
         }
         [HttpGet("doctors")]
-        public IActionResult GetDoctors()
+        public async Task<IActionResult> GetAllDoctors()
         {
-            var doctors = _persistence.GetActiveDoctors();
-            return Ok(doctors);
+            var doctors = await _persistence.GetAllDoctors();
+            return Ok(doctors.Select(d => new DoctorModel.Response(
+                d.Name,
+                d.LicenseNumber,
+                d.Speciality?.Name ?? string.Empty
+                )));
         }
         [HttpGet("doctors/{id}")]
         public async Task<IActionResult> GetDoctorById(Guid id)
         {
-            var doctor = _persistence.GetDoctorById(id);
-
-            if (doctor is null || !doctor.IsActive)
-                return NotFound();
+            var doctor = await GetDoctor(id);
 
             var response = new DoctorModel.Response(
                 doctor.Name,
@@ -53,16 +55,17 @@ namespace Dsw2026Ej15.Api.Controllers
         }
 
         [HttpDelete("doctors/{id}")]
-        public IActionResult DeactivateDoctor(Guid id)
+        public async Task<IActionResult> DeactivateDoctor(Guid id)
         {
-            var doctor = _persistence.GetDoctorById(id);
-
-            if (doctor is null || !doctor.IsActive)
-                return NotFound();
+            var doctor = await GetDoctor(id);
 
             doctor.Deactivate();
-
+            await _persistence.UpdateDoctor(doctor);
             return NoContent();
+        }
+            private async Task<Doctor> GetDoctor(Guid id)
+        {
+            return await _persistence.GetDoctorById(id) ?? throw new EntityNotFoundException("Médico no encontrado");
         }
     }
 }

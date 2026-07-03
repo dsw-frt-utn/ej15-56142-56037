@@ -16,18 +16,24 @@ namespace Dsw2026Ej15.Data
             LoadSpecialities();
         }
 
-        public void SaveDoctor(Doctor doctor)
+        public async Task SaveDoctor(Doctor doctor)
         {
             _doctors.Add(doctor);
         }
-
-        public Speciality? GetSpecialityById(Guid id)
+        public async Task UpdateDoctor(Doctor doctor)
         {
-            return _specialities.FirstOrDefault(e => e.Id == id);
+           // No-op: en memoria, el objeto en _doctors es la misma referencia
+           // que se mutó (ej. Deactivate()), ya quedó actualizado.
+           // PersistenceEf sí va a necesitar esto de verdad (SaveChangesAsync).
         }
-        public Doctor? GetDoctorById(Guid id)
+
+        public async Task<Speciality?> GetSpecialityById(Guid id)
         {
-            return _doctors.FirstOrDefault(d => d.Id == id);
+            return _specialities.SingleOrDefault(e => e.Id == id);
+        }
+        public async Task<Doctor?> GetDoctorById(Guid id)
+        {
+            return _doctors.SingleOrDefault(d => d.Id == id && d.IsActive);
         }
 
         private void LoadSpecialities()
@@ -50,7 +56,7 @@ namespace Dsw2026Ej15.Data
             }
         }
 
-        public IEnumerable<Doctor> GetActiveDoctors()
+        public async Task<IEnumerable<Doctor>> GetAllDoctors()
         {
             return _doctors.Where(d => d.IsActive);
 
