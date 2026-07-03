@@ -22,9 +22,10 @@ namespace Dsw2026Ej15.Data
         }
         public async Task UpdateDoctor(Doctor doctor)
         {
-           // No-op: en memoria, el objeto en _doctors es la misma referencia
-           // que se mutó (ej. Deactivate()), ya quedó actualizado.
-           // PersistenceEf sí va a necesitar esto de verdad (SaveChangesAsync).
+            _doctors.Remove(doctor);
+            _doctors.Add(doctor);
+            
+
         }
 
         public async Task<Speciality?> GetSpecialityById(Guid id)
