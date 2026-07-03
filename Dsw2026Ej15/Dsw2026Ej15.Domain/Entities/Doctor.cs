@@ -10,6 +10,7 @@ namespace Dsw2026Ej15.Domain.Entities
         public string LicenseNumber { get; init; }
         public bool IsActive { get; private set; }
         public Speciality? Speciality { get; private set; }
+        private Doctor() { }
         public Doctor (string name, string licenseNumber, Speciality speciality,Guid? id = null) : base (id)
         {
             Name = name;
