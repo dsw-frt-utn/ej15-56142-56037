@@ -3,6 +3,7 @@ using Dsw2026Ej15.Domain.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Dsw2026Ej15.Api.Middleware;
 
 
 namespace Dsw2026Ej15.Api
@@ -14,7 +15,7 @@ namespace Dsw2026Ej15.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            builder.Services.AddHealthChecks();
             builder.Services.AddControllers();
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<IPersistence, PersistenceInMemory>();
@@ -29,9 +30,11 @@ namespace Dsw2026Ej15.Api
             }
 
             app.UseAuthorization();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 
             app.MapControllers();
+            app.MapHealthChecks("/health-check");
 
             app.Run();
         }
