@@ -16,18 +16,20 @@ namespace Dsw2026Ej15.Data
             LoadSpecialities();
         }
 
-        public void SaveDoctor(Doctor doctor)
+        public async Task SaveDoctor(Doctor doctor)
         {
             _doctors.Add(doctor);
+            await Task.CompletedTask;
         }
 
-        public Speciality? GetSpecialityById(Guid id)
+        public async Task<Speciality?> GetSpecialityById(Guid id)
         {
-            return _specialities.FirstOrDefault(e => e.Id == id);
+            return await Task.FromResult(_specialities.FirstOrDefault(e => e.Id == id));
         }
-        public Doctor? GetDoctorById(Guid id)
+
+        public async Task<Doctor?> GetDoctorById(Guid id)
         {
-            return _doctors.FirstOrDefault(d => d.Id == id);
+            return await Task.FromResult(_doctors.FirstOrDefault(d => d.Id == id));
         }
 
         private void LoadSpecialities()
@@ -50,10 +52,9 @@ namespace Dsw2026Ej15.Data
             }
         }
 
-        public IEnumerable<Doctor> GetActiveDoctors()
+        public async Task<IEnumerable<Doctor>> GetActiveDoctors()
         {
-            return _doctors.Where(d => d.IsActive);
-
+            return await Task.FromResult(_doctors.Where(d => d.IsActive));
         }
     }
 }

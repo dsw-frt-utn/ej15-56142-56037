@@ -22,24 +22,26 @@ namespace Dsw2026Ej15.Api.Controllers
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
                 throw new ValidationException("Nombre y Matricula son requeridos");
 
-            var speciality = _persistence.GetSpecialityById(request.SpecialityId);
+            var speciality = await _persistence.GetSpecialityById(request.SpecialityId);
             if (speciality == null)
                 throw new ValidationException("Especialidad no existe");
             var doctor = new Doctor(request.Name, request.LicenseNumber, speciality);
-            _persistence.SaveDoctor(doctor);
+            await _persistence.SaveDoctor(doctor);
 
             return StatusCode(201);
         }
+
         [HttpGet("doctors")]
-        public IActionResult GetDoctors()
+        public async Task<IActionResult> GetDoctors()
         {
-            var doctors = _persistence.GetActiveDoctors();
+            var doctors = await _persistence.GetActiveDoctors();
             return Ok(doctors);
         }
+
         [HttpGet("doctors/{id}")]
         public async Task<IActionResult> GetDoctorById(Guid id)
         {
-            var doctor = _persistence.GetDoctorById(id);
+            var doctor = await _persistence.GetDoctorById(id);
 
             if (doctor is null || !doctor.IsActive)
                 return NotFound();
@@ -53,9 +55,9 @@ namespace Dsw2026Ej15.Api.Controllers
         }
 
         [HttpDelete("doctors/{id}")]
-        public IActionResult DeactivateDoctor(Guid id)
+        public async Task<IActionResult> DeactivateDoctor(Guid id)
         {
-            var doctor = _persistence.GetDoctorById(id);
+            var doctor = await _persistence.GetDoctorById(id);
 
             if (doctor is null || !doctor.IsActive)
                 return NotFound();
@@ -64,6 +66,11 @@ namespace Dsw2026Ej15.Api.Controllers
 
             return NoContent();
         }
+
+        //private async Task<Doctor?> GetDoctor(Guid id)
+        //{
+        //    return await _persistence.GetDoctorById(id) ?? throw new EntityNotFoundException("Medico no encontrado");
+        //}
     }
 }
 
